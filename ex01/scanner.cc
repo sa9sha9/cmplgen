@@ -50,6 +50,18 @@ extern int yydebug;
 /*   副作用:   srcFilePointer にファイルポインタを代入 */
 void initializeScanner(char *filename)
 {
+  FILE *fp;
+  fp = fopen(filename, "r");
+  if(fp == NULL) {
+    printf("%s file not open!\n", filename);
+    compileError(EFileNotFound);
+  } else {
+    printf("%s file opened!\n", filename);
+    currentChar = getCharacter();
+    srcFilePointer = fp;
+    lineNo = 1;
+  }
+  fclose(fp);
 }
 
 
@@ -80,7 +92,7 @@ int yylex()
     ・論理演算子のうち&&と||
 
   // ファイルの終わりを表すEOFを読んだとき
-  else if (currentChar == EOF)  {
+  } else if (currentChar == EOF)  {
     return EOF;
   }
   // その他の文字は不正な文字なのでエラー
