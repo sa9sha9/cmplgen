@@ -119,21 +119,9 @@ static int getIdentifier(int c)
     ここで，識別子の字句を読み取る有限オートマトンをシミュレートする．
     字句を保存するための局所変数を用意すること．
     字句へのポインタを yylval.symbol に代入し，識別子のトークンを返す．
-	*/
-	
-	string str;
-	
-	str += c;
-	currentChar = getCharacter();
-	
-	while( !isWhiteSpace( currentChar ) ){
-		
-		str += currentChar;
-		currentChar = getCharacter();
-		
-	}
-	
-  yylval.symbol = str;//グローバル変数 yylval に字句を保存
+     */
+
+  yylval.symbol = ;//グローバル変数 yylval に字句を保存
                   //yylval.symbol の型は y.tab.h を参照のこと．
   return ID;
 }
