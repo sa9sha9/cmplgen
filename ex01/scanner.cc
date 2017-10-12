@@ -59,7 +59,7 @@ void initializeScanner(char *filename)
   fp = fopen(filename, "r");
   if(fp == NULL) {
     printf("%s file not open!\n", filename);
-    compileError(EFileNotFound);
+    errorExit(EFileNotFound, filename);
   } else {
     printf("%s file opened!\n", filename);
     currentChar = getCharacter();
