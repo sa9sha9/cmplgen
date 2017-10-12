@@ -3,6 +3,11 @@ using namespace std;
 /*******************************************************************
 この次の行に、課題作成に参加したメンバ全員の学籍番号を記入すること
 
+ s1180108 中野　慈
+ s1220170 大滝　寛人
+ s1230073 櫻井　俊輔
+ s1230150 影山　尚登
+
 *******************************************************************/
 
 #include <string>
@@ -82,14 +87,16 @@ int yylex()
   // この時点では currentChar には空白以外の文字が入っている
 
   // 識別子の取得
-  if (currentCharが英字か)  {
+  if (/** currentCharが英字か **/)  {
     return getIdentifier(currentChar);
 
+    /**
     ここに，以下の字句を読み取る処理とコメントを読み飛ばす処理を書く。
     （処理する順番は任意でよい）
     ・加減算演算子（+と-）
     ・乗除算演算子（*と/と%）
     ・論理演算子のうち&&と||
+     */
 
   // ファイルの終わりを表すEOFを読んだとき
   } else if (currentChar == EOF)  {
@@ -108,12 +115,14 @@ int yylex()
 //   副作用: yylval.symbol に字句へのポインタを代入
 static int getIdentifier(int c)
 {
+    /**
     ここで，識別子の字句を読み取る有限オートマトンをシミュレートする．
     字句を保存するための局所変数を用意すること．
     字句へのポインタを yylval.symbol に代入し，識別子のトークンを返す．
+     */
 
-  yylval.symbol = グローバル変数 yylval に字句を保存
-                  yylval.symbol の型は y.tab.h を参照のこと．
+  yylval.symbol = ;//グローバル変数 yylval に字句を保存
+                  //yylval.symbol の型は y.tab.h を参照のこと．
   return ID;
 }
 
@@ -122,4 +131,9 @@ static int getIdentifier(int c)
 //  副作用: 改行文字を読んだとき lineNo が1増加
 static int getCharacter()
 {
+    int tmp;    //影山 10.05_01
+    fscanf(srcFilePointer, "%d", &tmp);
+    if(tmp == '\n')
+        lineNo++;
+    return tmp;
 }
