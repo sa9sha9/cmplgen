@@ -125,15 +125,16 @@ static int getIdentifier(int c)
 	
 	str += c;
 	currentChar = getCharacter();
-	
-	while( !isWhiteSpace( currentChar ) ){
+
+    // 英数字が続く限り字句を蓄積
+	while( isalnum( currentChar ) ){
 		
 		str += currentChar;
 		currentChar = getCharacter();
 		
 	}
 	
-  yylval.symbol = str;//グローバル変数 yylval に字句を保存
+  yylval.symbol = &str;//グローバル変数 yylval に字句を保存
                   //yylval.symbol の型は y.tab.h を参照のこと．
   return ID;
 }
