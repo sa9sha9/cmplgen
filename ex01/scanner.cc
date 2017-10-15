@@ -10,6 +10,7 @@ using namespace std;
 
 *******************************************************************/
 
+#include <iostream>
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,10 +62,10 @@ void initializeScanner(char *filename)
   FILE *fp;
   fp = fopen(filename, "r");
   if(fp == NULL) {
-//    printf("%s file not found!\n", filename);
+    printf("%s file not found!\n", filename);
     errorExit(EFileNotFound, filename);
   } else {
-//    printf("%s file opened!\n", filename);
+    printf("%s file opened!\n", filename);
     srcFilePointer = fp;
     currentChar = getCharacter();
     lineNo = 1;
@@ -90,7 +91,6 @@ int yylex()
 
   // 識別子の取得（ currntChar が英字であった場合 ）
   if ( isalnum( currentChar ) )  {
-    //return ID;
     return getIdentifier(currentChar);
   }
   // 加減算演算子（+と-）
@@ -154,6 +154,8 @@ int yylex()
     compileError(EIllegalChar,currentChar,currentChar);
   }
 
+  fclose(srcFilePointer);
+
   return 0;
 }
 
@@ -177,8 +179,11 @@ static int getIdentifier(int c)
 
   }
 
-  yylval.symbol = &str;//グローバル変数 yylval に字句を保存
+  yylval.symbol = new string(str);//グローバル変数 yylval に字句を保存
   //yylval.symbol の型は y.tab.h を参照のこと．
+
+//  cout << yylval.symbol->c_str() << " : "; //@@
+
   return ID;
 }
 
@@ -198,6 +203,7 @@ static int getCharacter()
   tmp = getc( srcFilePointer );
   if(tmp == '\n')
     lineNo++;
+//  printf("%c\n", tmp); //@@
   return tmp;
 }
 
