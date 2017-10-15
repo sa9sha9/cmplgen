@@ -202,6 +202,7 @@ static int getIdentifier(int c) {
 
     }
 
+    // newして新しいメモリ空間を確保
     yylval.symbol = new string(str);//グローバル変数 yylval に字句を保存
     //yylval.symbol の型は y.tab.h を参照のこと．
 
