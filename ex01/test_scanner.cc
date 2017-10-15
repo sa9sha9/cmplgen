@@ -8,25 +8,38 @@ using namespace std;
 #include "const.h"
 #include "scanner.h"
 #include "error.h"
+#include "error.cc"
 #include "y.tab.h"
 
+// 定数の定義
+#define FOREVER	1
+
 #define isWhiteSpace(c)	(c == ' ' || c == '\t' || c == '\n')
-static int currentChar;		// 先読み文字バッファ
 static int getCharacter(void);
 static int getIdentifier( int );
+void initializeScanner(char*);
+
+int lineNo;	// 処理中の行の行番号(scaner.ccとerror.ccで使用)
 
 /**/static int cnt = 0;
+static FILE *srcFilePointer;	// 原始プログラムのファイルディスクリプタ
+static int currentChar;		// 先読み文字バッファ
+
+#ifdef YYDEBUG
+extern int yydebug;
+#endif
 
 YYSTYPE yylval;
 
 int main()
 {
+    initializeScanner((char *)"hoge.txt");
+
     int token;
 
     token = yylex();
 
     printf("token number = %d\n", token);
-    printf("yylval.symbol = %s\n", (yylval.symbol)->c_str());
 
     switch( token ) {
         case 258:
@@ -48,6 +61,20 @@ int main()
     return 0;
 }
 
+void initializeScanner(char *filename)
+{
+  FILE *fp;
+  fp = fopen(filename, "r");
+  if(fp == NULL) {
+    printf("%s file not found!\n", filename);
+    errorExit(EFileNotFound, filename);
+  } else {
+    printf("%s file opened!\n", filename);
+    srcFilePointer = fp;
+    currentChar = getCharacter();
+    lineNo = 1;
+  }
+}
 /* 字句読み取りモジュール                                */
 /* 返り値: トークンを表す定数                            */
 /* 副作用: 共用体 yylval に、必要に応じて属性を代入      */
@@ -58,15 +85,12 @@ int main()
 int yylex()
 {
 START:
-    /*
     // 空白の読み飛ばし
     while (isWhiteSpace(currentChar))  {
-    currentChar = getCharacter();
+        currentChar = getCharacter();
     }
-     */
     // この時点では currentChar には空白以外の文字が入っている
 
-    /**/currentChar = getCharacter();
     // 識別子の取得（ currntChar が英字であった場合 ）
     if ( isalnum( currentChar ) )  {
         //return ID;
@@ -106,8 +130,7 @@ START:
         currentChar = getCharacter();
 
         if ( currentChar != Cand ) {
-            //compileError( EIllegalChar, currentChar, currentChar );
-            printf("compileError\n");
+            compileError( EIllegalChar, currentChar, currentChar );
         }
 
         return LOGOP;
@@ -124,29 +147,26 @@ START:
 
         return LOGOP;
     }
-    /*
-       else if ( currentChar == Csubtract ) {
-
-       }
 
     // ファイルの終わりを表すEOFを読んだとき
     else if (currentChar == EOF)  {
-    return EOF;
+        return EOF;
     }
     // その他の文字は不正な文字なのでエラー
     else  {
-    compileError(EIllegalChar,currentChar,currentChar);
+        compileError(EIllegalChar,currentChar,currentChar);
     }
-     */
+
     return 0;
 }
 
+/*
 static int getCharacter()
 {
     switch ( cnt ) {
         case 0:
             cnt++;
-            return 'a';
+            return '&';
             break;
         case 1:
             cnt++;
@@ -163,6 +183,30 @@ static int getCharacter()
     }
 
     return 0;
+}
+*/
+
+// 文字読み取りモジュール
+//  返り値: ファイルから読んだ文字
+//  副作用: 改行文字を読んだとき lineNo が1増加
+static int getCharacter()
+{
+    char tmp;    //影山 10.05_01
+
+    tmp = getc( srcFilePointer );
+    if(tmp == '\n')
+        lineNo++;
+    printf("%c", tmp);
+    return tmp;
+    /*
+    char tmp;    //影山 10.05_01
+    fscanf(srcFilePointer, "%c", &tmp);
+    if(tmp == '\n')
+        lineNo++;
+    printf("%c\n", tmp);
+    ++srcFilePointer;
+    return tmp;
+    */
 }
 
 // 識別子を取得する
