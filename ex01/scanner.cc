@@ -86,17 +86,41 @@ int yylex()
   }
   // この時点では currentChar には空白以外の文字が入っている
 
-  // 識別子の取得
-  if (/** currentCharが英字か **/)  {
-    return getIdentifier(currentChar);
+  // 識別子の取得（ currntChar が英字であった場合 ）
+  if ( isalpha( currentChar ) != 0 )  {
+    while ( ) {
+      yylval.string =
+      cur    
+    }
+    yylval. = yylval.symbol;
 
-    /**
-    ここに，以下の字句を読み取る処理とコメントを読み飛ばす処理を書く。
-    （処理する順番は任意でよい）
-    ・加減算演算子（+と-）
-    ・乗除算演算子（*と/と%）
-    ・論理演算子のうち&&と||
-     */
+    return ID;
+    //return getIdentifier(currentChar);
+  }
+
+    // 加減算演算子（+と-）
+  else if ( currentChar == Cadd || currentChar == Csubtract ) {
+    return ADDOP;
+  }
+
+    // 乗除算演算子（*と/と%）
+  else if ( currentChar == Cmultiply || currentChar == Cdivide || currentChar == Cmodulo ) {
+    return MULOP;
+  }
+
+    // 論理演算子のうち&&と||
+  else if ( currentChar == Cand || currentChar == Cor ) {
+    if (  ) {
+      compileError( ElllegalChar, currentChar, currentChar );
+    }
+
+    return LOGOP;
+  }
+
+  // コメントを読み飛ばす
+  else if () {
+    
+  }
 
   // ファイルの終わりを表すEOFを読んだとき
   } else if (currentChar == EOF)  {
@@ -150,3 +174,4 @@ static int getCharacter()
         lineNo++;
     return tmp;
 }
+
