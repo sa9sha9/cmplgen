@@ -1,4 +1,3 @@
-#include <iostream>
 using namespace std;
 
 #include <string>
@@ -14,9 +13,11 @@ using namespace std;
 #define isWhiteSpace(c)	(c == ' ' || c == '\t' || c == '\n')
 static int currentChar;		// 先読み文字バッファ
 static int getCharacter(void);
+static int getIdentifier( int );
 
 /**/static int cnt = 0;
 
+YYSTYPE yylval;
 
 int main()
 {
@@ -25,6 +26,7 @@ int main()
     token = yylex();
 
     printf("token number = %d\n", token);
+    printf("yylval.symbol = %s\n", (yylval.symbol)->c_str());
 
     switch( token ) {
         case 258:
@@ -55,111 +57,141 @@ int main()
 /*         それをyylvalに格納する．                      */
 int yylex()
 {
-  START:
- /*
-  // 空白の読み飛ばし
-  while (isWhiteSpace(currentChar))  {
+START:
+    /*
+    // 空白の読み飛ばし
+    while (isWhiteSpace(currentChar))  {
     currentChar = getCharacter();
-  }
-  */
-  // この時点では currentChar には空白以外の文字が入っている
+    }
+     */
+    // この時点では currentChar には空白以外の文字が入っている
 
-  /**/currentChar = getCharacter();
-  // 識別子の取得（ currntChar が英字であった場合 ）
-  if ( isalnum( currentChar ) )  {
-    return ID;
-    //return getIdentifier(currentChar);
-  }
+    /**/currentChar = getCharacter();
+    // 識別子の取得（ currntChar が英字であった場合 ）
+    if ( isalnum( currentChar ) )  {
+        //return ID;
+        return getIdentifier(currentChar);
+    }
     // 加減算演算子（+と-）
-  //else if ( currentChar == Cadd || currentChar == Csubtract ) {
-  if ( currentChar == Cadd || currentChar == Csubtract ) {
-    return ADDOP;
-  }
+    //else if ( currentChar == Cadd || currentChar == Csubtract ) {
+    if ( currentChar == Cadd || currentChar == Csubtract ) {
+        return ADDOP;
+    }
 
     // 乗除算演算子（*と%）
-  else if ( currentChar == Cmultiply || currentChar == Cmodulo ) {
-    return MULOP;
-  }
-
-  else if ( currentChar == Cdivide ) {
-    currentChar = getCharacter();
-
-    if ( currentChar == Cdivide ) {
-      while ( 1 ) {
-        currentChar = getCharacter();
-        if ( currentChar == '\n' ) {
-          goto START;
-        }
-        else if (currentChar == EOF)  {
-          return EOF;
-        }
-      }
+    else if ( currentChar == Cmultiply || currentChar == Cmodulo ) {
+        return MULOP;
     }
 
-    return MULOP;
-  }
+    else if ( currentChar == Cdivide ) {
+        currentChar = getCharacter();
+
+        if ( currentChar == Cdivide ) {
+            while ( 1 ) {
+                currentChar = getCharacter();
+                if ( currentChar == '\n' ) {
+                    goto START;
+                }
+                else if (currentChar == EOF)  {
+                    return EOF;
+                }
+            }
+        }
+
+        return MULOP;
+    }
 
     // 論理演算子&&
-  else if ( currentChar == Cand ) {
-    currentChar = getCharacter();
+    else if ( currentChar == Cand ) {
+        currentChar = getCharacter();
 
-    if ( currentChar != Cand ) {
-      //compileError( EIllegalChar, currentChar, currentChar );
-      printf("compileError\n");
+        if ( currentChar != Cand ) {
+            //compileError( EIllegalChar, currentChar, currentChar );
+            printf("compileError\n");
+        }
+
+        return LOGOP;
     }
-
-    return LOGOP;
-  }
 
     // 論理演算子||
-  else if ( currentChar == Cor ) {
-    currentChar = getCharacter();
+    else if ( currentChar == Cor ) {
+        currentChar = getCharacter();
 
-    if ( currentChar != Cor ) {
-      //compileError( EIllegalChar, currentChar, currentChar );
-      printf("compileError\n");
+        if ( currentChar != Cor ) {
+            //compileError( EIllegalChar, currentChar, currentChar );
+            printf("compileError\n");
+        }
+
+        return LOGOP;
     }
+    /*
+       else if ( currentChar == Csubtract ) {
 
-    return LOGOP;
-  }
-/*
-  else if ( currentChar == Csubtract ) {
-    
-  }
+       }
 
-  // ファイルの終わりを表すEOFを読んだとき
-  else if (currentChar == EOF)  {
+    // ファイルの終わりを表すEOFを読んだとき
+    else if (currentChar == EOF)  {
     return EOF;
-  }
-  // その他の文字は不正な文字なのでエラー
-  else  {
+    }
+    // その他の文字は不正な文字なのでエラー
+    else  {
     compileError(EIllegalChar,currentChar,currentChar);
-  }
-*/
+    }
+     */
     return 0;
 }
 
 static int getCharacter()
 {
     switch ( cnt ) {
-      case 0:
-        cnt++;
-        return '1';
-        break;
-      case 1:
-        cnt++;
-        return '/';
-        break; 
-      case 2:
-        cnt++;
-        return EOF;
-        break; 
-      case 3:
-        cnt++;
-        return '+';
-        break; 
+        case 0:
+            cnt++;
+            return 'a';
+            break;
+        case 1:
+            cnt++;
+            return 'b';
+            break; 
+        case 2:
+            cnt++;
+            return 'c';
+            break; 
+        case 3:
+            cnt++;
+            return ' ';
+            break; 
     }
 
     return 0;
+}
+
+// 識別子を取得する
+//   c: 識別子の１文字目（英字）
+//   返り値: トークン ID
+//   副作用: yylval.symbol に字句へのポインタを代入
+static int getIdentifier(int c)
+{
+    /**
+    ここで，識別子の字句を読み取る有限オートマトンをシミュレートする．
+    字句を保存するための局所変数を用意すること．
+    字句へのポインタを yylval.symbol に代入し，識別子のトークンを返す．
+	*/
+	
+	string str;
+	
+	str += c;
+	currentChar = getCharacter();
+
+    // 英数字が続く限り字句を蓄積
+	while( isalnum( currentChar ) ){
+		
+		str += currentChar;
+		currentChar = getCharacter();
+		
+	}
+	
+  yylval.symbol = &str;//グローバル変数 yylval に字句を保存
+                  //yylval.symbol の型は y.tab.h を参照のこと．
+  return ID;
 }
 
