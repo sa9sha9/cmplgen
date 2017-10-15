@@ -62,14 +62,15 @@ void initializeScanner(char *filename) {
     FILE *fp;
     fp = fopen(filename, "r");
     if (fp == NULL) {
-        //printf("%s file not found!\n", filename);
+        //printf("%s file not found!\n", filename); // テスト通す時はいらない
         errorExit(EFileNotFound, filename);
     } else {
-        //printf("%s file opened!\n", filename);
+        //printf("%s file opened!\n", filename);　// テスト通す時はいらない
         srcFilePointer = fp;
-        lineNo = 1;
+        lineNo = 1; //getCharacter()の中でlineNo++しているので順番注意
         currentChar = getCharacter();
     }
+    // fcloseはyylexの最後で
 }
 
 
@@ -92,13 +93,14 @@ int yylex() {
     if (isalnum(currentChar)) {
         return getIdentifier(currentChar);
     }
-    // 加減算演算子（+と-）
+    // 加減算演算子（+）
     //else if ( currentChar == Cadd || currentChar == Csubtract ) {
     if (currentChar == Cadd) {
-
         yylval.op = Cadd;
         currentChar = getCharacter();
+
         return ADDOP;
+    // 加減算演算子(-)
     } else if (currentChar == Csubtract) {
 
         yylval.op = Csubtract;
@@ -107,30 +109,31 @@ int yylex() {
         return ADDOP;
 
     }
-        // 乗除算演算子（*)
+    // 乗除算演算子（*)
     else if (currentChar == Cmultiply) {
         yylval.op = Cmultiply;
         currentChar = getCharacter();
 
         return MULOP;
     }
-
-        //乗除算演算子(%)
+    //乗除算演算子(%)
     else if (currentChar == Cmodulo) {
         yylval.op = Cmodulo;
         currentChar = getCharacter();
 
         return MULOP;
+    //乗除算演算子(/)とコメントアウト
     } else if (currentChar == Cdivide) {
         currentChar = getCharacter();
 
         if (currentChar == Cdivide) {
+            // コメントアウトを\nかEOFまで読む
             while (1) {
                 currentChar = getCharacter();
                 if (currentChar == '\n') {
-                    goto START;
+                    goto START; //yylexの最初に飛ばす
                 } else if (currentChar == EOF) {
-                    return EOF;
+                    return EOF; //EOFで抜ける
                 }
             }
         }
@@ -139,7 +142,7 @@ int yylex() {
         return MULOP;
     }
 
-        // 論理演算子&&
+    // 論理演算子(&&)
     else if (currentChar == Cand) {
         currentChar = getCharacter();
 
@@ -152,8 +155,7 @@ int yylex() {
 
         return LOGOP;
     }
-
-        // 論理演算子||
+    // 論理演算子(||)
     else if (currentChar == Cor) {
         currentChar = getCharacter();
 
