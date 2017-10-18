@@ -153,7 +153,7 @@ int yylex() {
         return RELOP;
 
     // 文字コードの取得
-    } else if ( currentChar == ''' ) {
+    } else if ( currentChar == '\'' ) {
         currentChar = getCharacter();
 
         if ( currentChar == EOF ) {
@@ -164,7 +164,7 @@ int yylex() {
 
         currentChar = getCharacter();
 
-        if ( currentChar != ''' ) {
+        if ( currentChar != '\'' ) {
             compileError( ETooLongCharacter );
         }
 
@@ -173,16 +173,27 @@ int yylex() {
         return INUM;
 
     // ( ) [ ] { } ; , <- それぞれの文字の取得
-    } else if ( '(' || ')' || '[' || ']' || '{' || '}' || ';' || ',' ) {
+    } else if ( currentChar == '('
+                || currentChar == ')'
+                || currentChar == '['
+                || currentChar == ']'
+                || currentChar == '{'
+                || currentChar == '}'
+                || currentChar == ';'
+                || currentChar == ','
+            ) {
         return currentChar;
 
-    // 識別子の取得（ currntChar が英字であった場合 ）
+    // 識別子の取得（ currentChar が英字であった場合 ）
     } else if (isalnum(currentChar)) {
         return getIdentifier(currentChar);
     }
-
-    // 加減算演算子(+)
-    } else if (currentChar == Cadd) {
+        // 整数と実数
+    else if (isdigit(currentChar)) {
+        return getNumber(currentChar);
+    }
+    // 加減算演算子（+）
+    if (currentChar == Cadd) {
         yylval.op = Cadd;
         currentChar = getCharacter();
 
@@ -310,15 +321,15 @@ static int isReservedWord(string lexim) {
 /*   返り値: トークン（ID か予約語のトークン）      */
 /*   副作用: yylval.symbol に字句へのポインタを代入 */
 static int getIdentifier(int c) {
-  /*
-  課題１で作った getIdentifier() の本体をここにコピーする。
-  その後、予約語または識別子のトークンを返すように変更する。
-  識別子（または予約語）を表す字句を読んだ後、字句が予約語か
-  どうかを判断するために、関数 isReservedWord() を呼び出す。
-  関数 isReservedWord() の戻り値に応じて、予約語のトークンを
-  返すか、識別子のトークンを返す（と共にyylval.symbolに属性を
-  代入する）かの、いずれかの処理を行う。
-   */
+    /*
+    課題１で作った getIdentifier() の本体をここにコピーする。
+    その後、予約語または識別子のトークンを返すように変更する。
+    識別子（または予約語）を表す字句を読んだ後、字句が予約語か
+    どうかを判断するために、関数 isReservedWord() を呼び出す。
+    関数 isReservedWord() の戻り値に応じて、予約語のトークンを
+    返すか、識別子のトークンを返す（と共にyylval.symbolに属性を
+    代入する）かの、いずれかの処理を行う。
+     */
     string str; // 蓄積する文字
 
     str += c;
@@ -332,9 +343,10 @@ static int getIdentifier(int c) {
 
     }
 
-
+    // 字句が予約語の場合
     if (int reservedToken = isReservedWord(str)) {
         return reservedToken;
+        // 字句が予約語でない場合
     } else {
         // newして新しいメモリ空間を確保
         yylval.symbol = new string(str);//グローバル変数 yylval に字句を保存
@@ -351,6 +363,11 @@ static int getIdentifier(int c) {
 /*   返り値: トークンINUM か RNUM                                    */
 /*   副作用: yylval.inum か yylval.rnum に字句が表す整数か実数を代入 */
 static int getNumber(int c) {
+    // todo: なぜ仮引数'c'をcurrentCharの代わりに使うのか不明
+    // currentCharに直接getCharacterの戻り値を代入してあげないと、
+    // getNumberを抜ける時にcurrentChar = cという処理が必ず必要
+    // になるので、currentCharを使った方が面倒がない。
+
     /*
     ここで，整数または実数を表す字句を読み取る有限オートマトンを
     シミュレートする。
@@ -371,11 +388,43 @@ static int getNumber(int c) {
         do {
             tmp.push_back(c);
         } while (isdigit(c = getCharacter()));
+
+        // e(E)を使った表記
+        if (c == 'e' || c == 'E') {
+            tmp.push_back(c);
+            c = getCharacter();
+
+            // [eE]の次は[数字]か[+-]
+
+            // [eE]の次が[数字]の場合
+            if (isdigit(c = getCharacter())) {
+                // [eE] 以降の数字を獲得
+                do {
+                    tmp.push_back(c);
+                } while (isdigit(c = getCharacter()));
+
+                // [eE]の次が[+-]の場合
+            } else if (c == '+' || c == '-') {
+                if (isdigit(c = getCharacter())) {
+                    // [eE][+-]以降の数字を獲得
+                    do {
+                        tmp.push_back(c);
+                    } while (isdigit(c = getCharacter()));
+                } else {
+                    compileError(EIllegalReal, c, c);
+                }
+
+                // [eE]の次が[数字]でも[+-]でもない場合はエラー
+            } else {
+                compileError(EIllegalReal, c, c);
+            }
+        }
+
         yylval.rnum = atof(tmp.c_str());
         currentChar = c;
         return RNUM;
-    // 整数
     } else {
+        // 整数
         yylval.inum = atoi(tmp.c_str());
         currentChar = c;
         return INUM;
