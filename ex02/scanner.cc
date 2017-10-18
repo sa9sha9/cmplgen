@@ -85,8 +85,7 @@ int yylex() {
     // この時点では currentChar には空白以外の文字が入っている
 
     // 識別子または予約語の取得
-    if ( ( currentChar >= 'a' && currentChar <= 'z' ) || ( currentChar >= 
-        'A' && currentChar <= 'Z' ) ) {
+    if ( isalpha(currentChar) ) {
 
         return getIdentifier( currentChar );
 
@@ -379,54 +378,52 @@ static int getNumber(int c) {
     */
     string tmp = "";    //01 影山 10.12
     do {
-        tmp.push_back(c);
+        tmp.push_back(currentChar);
     } while (isdigit(c = getCharacter()));
 
     // 実数
-    if (c == '.') {
+    if (currentChar == '.') {
         // '.'以降の数字を獲得
         do {
-            tmp.push_back(c);
+            tmp.push_back(currentChar);
         } while (isdigit(c = getCharacter()));
 
         // e(E)を使った表記
-        if (c == 'e' || c == 'E') {
-            tmp.push_back(c);
-            c = getCharacter();
+        if (currentChar == 'e' || currentChar == 'E') {
+            tmp.push_back(currentChar);
+            currentChar = getCharacter();
 
             // [eE]の次は[数字]か[+-]
 
             // [eE]の次が[数字]の場合
-            if (isdigit(c = getCharacter())) {
+            if (isdigit(currentChar = getCharacter())) {
                 // [eE] 以降の数字を獲得
                 do {
-                    tmp.push_back(c);
+                    tmp.push_back(currentChar);
                 } while (isdigit(c = getCharacter()));
 
                 // [eE]の次が[+-]の場合
-            } else if (c == '+' || c == '-') {
+            } else if (currentChar == '+' || currentChar == '-') {
                 if (isdigit(c = getCharacter())) {
                     // [eE][+-]以降の数字を獲得
                     do {
-                        tmp.push_back(c);
-                    } while (isdigit(c = getCharacter()));
+                        tmp.push_back(currentChar);
+                    } while (isdigit(currentChar = getCharacter()));
                 } else {
-                    compileError(EIllegalReal, c, c);
+                    compileError(EIllegalReal, currentChar, currentChar);
                 }
 
                 // [eE]の次が[数字]でも[+-]でもない場合はエラー
             } else {
-                compileError(EIllegalReal, c, c);
+                compileError(EIllegalReal, currentChar, currentChar);
             }
         }
 
         yylval.rnum = atof(tmp.c_str());
-        currentChar = c;
         return RNUM;
     } else {
         // 整数
         yylval.inum = atoi(tmp.c_str());
-        currentChar = c;
         return INUM;
     }
 }
@@ -435,12 +432,6 @@ static int getNumber(int c) {
 /*  返り値: ファイルから読んだ文字              */
 /*  副作用: 改行文字を読んだとき lineNo が1増加 */
 static int getCharacter() {
-//    int tmp;    //影山 10.05_01
-    //    fscanf(srcFilePointer, "%d", &tmp);
-    //    if(tmp == '\n')
-    //        lineNo++;
-    //    return tmp;
-
     // fscanfがうまく使えなかったのでgetcに置き換え
     int tmp;    //影山 10.05_01
     tmp = getc(srcFilePointer);
