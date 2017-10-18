@@ -86,19 +86,19 @@ int yylex() {
     // この時点では currentChar には空白以外の文字が入っている
 
     // 識別子または予約語の取得
-    if ( isalpha(currentChar) ) {
+    if (isalpha(currentChar)) {
 
-        return getIdentifier( currentChar );
+        return getIdentifier(currentChar);
 
-    // 整数と実数の取得
-    } else if ( isdigit(currentChar) ) {
-        return getNumber( currentChar );
+        // 整数と実数の取得
+    } else if (isdigit(currentChar)) {
+        return getNumber(currentChar);
 
-    // >= と > の取得
-    } else if ( currentChar == '>' ) {
+        // >= と > の取得
+    } else if (currentChar == '>') {
         currentChar = getCharacter();
 
-        if ( currentChar != '=' ) {
+        if (currentChar != '=') {
             yylval.op = CgreaterThan;
 
             return RELOP;
@@ -109,11 +109,11 @@ int yylex() {
 
         return RELOP;
 
-    // <= と < の取得
-    } else if ( currentChar == '<' ) {
+        // <= と < の取得
+    } else if (currentChar == '<') {
         currentChar = getCharacter();
 
-        if ( currentChar != '=' ) {
+        if (currentChar != '=') {
             yylval.op = ClessThan;
 
             return RELOP;
@@ -124,11 +124,11 @@ int yylex() {
 
         return RELOP;
 
-    // == と = の取得
-    } else if ( currentChar == '=' ) {
+        // == と = の取得
+    } else if (currentChar == '=') {
         currentChar = getCharacter();
 
-        if ( currentChar != '=' ) {
+        if (currentChar != '=') {
             return '=';
         }
 
@@ -137,11 +137,11 @@ int yylex() {
 
         return RELOP;
 
-    // != と ! の取得
-    } else if ( currentChar == Cnot ) {
+        // != と ! の取得
+    } else if (currentChar == Cnot) {
         currentChar = getCharacter();
 
-        if ( currentChar != '=' ) {
+        if (currentChar != '=') {
             yylval.op = Cnot;
 
             return ULOGOP;
@@ -152,24 +152,25 @@ int yylex() {
 
         return RELOP;
 
-    // 文字コードの取得
-    } else if ( currentChar == '\'' ) {
+        // 文字コードの取得
+    } else if (currentChar == '\'') {
         int code; // 文字コードを一時保存
         currentChar = getCharacter();
 
 
-        if ( currentChar == EOF ) {
-            compileError( EUnexpectedEOF );
+        if (currentChar == EOF) {
+            compileError(EUnexpectedEOF);
         } else {
             code = currentChar; // 文字コードを保存
         }
 
         currentChar = getCharacter();
 
-        if (currentChar == EOF ) {
-            compileError( EUnexpectedEOF );
-        } else if ( currentChar != '\'' ) {
-            compileError( ETooLongCharacter );
+        // 文字コードを読んだ後のエラー処理(EOFの場合 と １文字以上の文字コードを読んだ場合)
+        if (currentChar == EOF) {
+            compileError(EUnexpectedEOF);
+        } else if (currentChar != '\'') {
+            compileError(ETooLongCharacter);
         }
 
         // １文字進めておく
@@ -179,15 +180,15 @@ int yylex() {
 
         return INUM;
 
-    // ( ) [ ] { } ; , <- それぞれの文字の取得
-    } else if ( currentChar == '('
-                || currentChar == ')'
-                || currentChar == '['
-                || currentChar == ']'
-                || currentChar == '{'
-                || currentChar == '}'
-                || currentChar == ';'
-                || currentChar == ','
+        // ( ) [ ] { } ; , <- それぞれの文字の取得
+    } else if (currentChar == '('
+               || currentChar == ')'
+               || currentChar == '['
+               || currentChar == ']'
+               || currentChar == '{'
+               || currentChar == '}'
+               || currentChar == ';'
+               || currentChar == ','
             ) {
         int c;
         c = currentChar; // swap
@@ -195,35 +196,35 @@ int yylex() {
         currentChar = getCharacter();
         return c;
 
-    // 加減算演算子（+）
+        // 加減算演算子（+）
     } else if (currentChar == Cadd) {
         yylval.op = Cadd;
         currentChar = getCharacter();
 
         return ADDOP;
 
-    // 加減算演算子(-)
+        // 加減算演算子(-)
     } else if (currentChar == Csubtract) {
         yylval.op = Csubtract;
         currentChar = getCharacter();
 
         return ADDOP;
 
-    // 乗除算演算子(*)
+        // 乗除算演算子(*)
     } else if (currentChar == Cmultiply) {
         yylval.op = Cmultiply;
         currentChar = getCharacter();
 
         return MULOP;
 
-    //乗除算演算子(%)
+        //乗除算演算子(%)
     } else if (currentChar == Cmodulo) {
         yylval.op = Cmodulo;
         currentChar = getCharacter();
 
         return MULOP;
 
-    //乗除算演算子(/)とコメントアウト
+        //乗除算演算子(/)とコメントアウト
     } else if (currentChar == Cdivide) {
         currentChar = getCharacter();
 
@@ -243,7 +244,7 @@ int yylex() {
         yylval.op = Cdivide;
         return MULOP;
 
-    // 論理演算子(&&)
+        // 論理演算子(&&)
     } else if (currentChar == Cand) {
         currentChar = getCharacter();
 
@@ -256,7 +257,7 @@ int yylex() {
 
         return LOGOP;
 
-    // 論理演算子(||)
+        // 論理演算子(||)
     } else if (currentChar == Cor) {
         currentChar = getCharacter();
 
