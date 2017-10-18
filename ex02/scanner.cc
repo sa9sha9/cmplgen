@@ -379,14 +379,14 @@ static int getNumber(int c) {
     string tmp = "";    //01 影山 10.12
     do {
         tmp.push_back(currentChar);
-    } while (isdigit(c = getCharacter()));
+    } while (isdigit(currentChar = getCharacter()));
 
     // 実数
     if (currentChar == '.') {
         // '.'以降の数字を獲得
         do {
             tmp.push_back(currentChar);
-        } while (isdigit(c = getCharacter()));
+        } while (isdigit(currentChar = getCharacter()));
 
         // e(E)を使った表記
         if (currentChar == 'e' || currentChar == 'E') {
@@ -396,15 +396,16 @@ static int getNumber(int c) {
             // [eE]の次は[数字]か[+-]
 
             // [eE]の次が[数字]の場合
-            if (isdigit(currentChar = getCharacter())) {
+            if (isdigit(currentChar)) {
                 // [eE] 以降の数字を獲得
                 do {
                     tmp.push_back(currentChar);
-                } while (isdigit(c = getCharacter()));
+                } while (isdigit(currentChar = getCharacter()));
 
                 // [eE]の次が[+-]の場合
             } else if (currentChar == '+' || currentChar == '-') {
-                if (isdigit(c = getCharacter())) {
+                tmp.push_back(currentChar);
+                if (isdigit(currentChar = getCharacter())) {
                     // [eE][+-]以降の数字を獲得
                     do {
                         tmp.push_back(currentChar);
