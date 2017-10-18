@@ -10,6 +10,7 @@ using namespace std;
 
 *******************************************************************/
 
+#include <iostream>
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,7 +76,7 @@ void initializeScanner(char *filename) {
 
 
 int yylex() {
-    int code; // 文字コードを一時保存
+
 
     START:
     // 空白の読み飛ばし
@@ -137,7 +138,7 @@ int yylex() {
         return RELOP;
 
     // != と ! の取得
-    } else if ( currentChar == '!' ) {
+    } else if ( currentChar == Cnot ) {
         currentChar = getCharacter();
 
         if ( currentChar != '=' ) {
@@ -153,6 +154,7 @@ int yylex() {
 
     // 文字コードの取得
     } else if ( currentChar == '\'' ) {
+        int code; // 文字コードを一時保存
         currentChar = getCharacter();
 
         if ( currentChar == EOF ) {
@@ -166,6 +168,9 @@ int yylex() {
         if ( currentChar != '\'' ) {
             compileError( ETooLongCharacter );
         }
+
+        // １文字進めておく
+        currentChar = getCharacter();
 
         yylval.inum = code;
 
@@ -183,16 +188,8 @@ int yylex() {
             ) {
         return currentChar;
 
-    // 識別子の取得（ currentChar が英字であった場合 ）
-    } else if (isalnum(currentChar)) {
-        return getIdentifier(currentChar);
-    }
-        // 整数と実数
-    else if (isdigit(currentChar)) {
-        return getNumber(currentChar);
-    }
     // 加減算演算子（+）
-    if (currentChar == Cadd) {
+    } else if (currentChar == Cadd) {
         yylval.op = Cadd;
         currentChar = getCharacter();
 
