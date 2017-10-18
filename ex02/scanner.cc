@@ -94,7 +94,7 @@ int yylex() {
         return getNumber( currentChar );
 
     // >= と > の取得
-    } else if ( currentChar == CgreaterThan ) {
+    } else if ( currentChar == '>' ) {
         currentChar = getCharacter();
 
         if ( currentChar != '=' ) {
@@ -109,7 +109,7 @@ int yylex() {
         return RELOP;
 
     // <= と < の取得
-    } else if ( currentChar == ClessThan ) {
+    } else if ( currentChar == '<' ) {
         currentChar = getCharacter();
 
         if ( currentChar != '=' ) {
@@ -137,7 +137,7 @@ int yylex() {
         return RELOP;
 
     // != と ! の取得
-    } else if ( currentChar == Cnot ) {
+    } else if ( currentChar == '!' ) {
         currentChar = getCharacter();
 
         if ( currentChar != '=' ) {
@@ -167,7 +167,7 @@ int yylex() {
             compileError( ETooLongCharacter );
         }
 
-        yylval.op = code;
+        yylval.inum = code;
 
         return INUM;
 
