@@ -157,6 +157,7 @@ int yylex() {
         int code; // 文字コードを一時保存
         currentChar = getCharacter();
 
+
         if ( currentChar == EOF ) {
             compileError( EUnexpectedEOF );
         } else {
@@ -165,7 +166,9 @@ int yylex() {
 
         currentChar = getCharacter();
 
-        if ( currentChar != '\'' ) {
+        if (currentChar == EOF ) {
+            compileError( EUnexpectedEOF );
+        } else if ( currentChar != '\'' ) {
             compileError( ETooLongCharacter );
         }
 
@@ -186,7 +189,11 @@ int yylex() {
                 || currentChar == ';'
                 || currentChar == ','
             ) {
-        return currentChar;
+        int c;
+        c = currentChar; // swap
+
+        currentChar = getCharacter();
+        return c;
 
     // 加減算演算子（+）
     } else if (currentChar == Cadd) {
@@ -339,16 +346,17 @@ static int getIdentifier(int c) {
 
     }
 
-    // 字句が予約語の場合
-    if (int reservedToken = isReservedWord(str)) {
-        return reservedToken;
-        // 字句が予約語でない場合
-    } else {
+    // 字句が予約語か識別子か
+    int token = isReservedWord(str);
+
+    // 字句が予約語でない場合
+    if (token == ID) {
         // newして新しいメモリ空間を確保
         yylval.symbol = new string(str);//グローバル変数 yylval に字句を保存
         //yylval.symbol の型は y.tab.h を参照のこと．
-        return ID;
     }
+
+    return token;
 
 //  cout << yylval.symbol->c_str() << " : "; //@@
 
