@@ -75,33 +75,7 @@ bool parse()
 //   副作用: なし
 bool parseLF()
 {
-  bool bl, tmp;
-
-  switch ( token ) {
-  case NOT:
-    tmp = parseNoImpl();
-    bl = parseLF2( tmp );
-    break;
-  case '(':
-    tmp = parseNoImpl();
-    bl = parseLF2( tmp );
-    break;
-  case TRUE:
-    tmp = parseNoImpl();
-    bl = parseLF2( tmp );
-    break;
-  case FALSE:
-    tmp = parseNoImpl();
-    bl = parseLF2( tmp );
-    break;
-  default:
-    parseError();
-    break;
-  }
-
-  return bl;
 }
-
 
 // 「論理式」の構文解析を行い，その真理値を返す
 //   引数: トークンIMPLの前に現れる論理式の真理値
@@ -235,12 +209,12 @@ bool parseSimpleLF()
         case TRUE:
             // TRUE
             match(TRUE);
-            bl = true;
+            bl = TRUE;
             break;
         case FALSE:
             // FALSE
             match(FALSE);
-            bl = false;
+            bl = FALSE;
             break;
         default:
             parseError();
