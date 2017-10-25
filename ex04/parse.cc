@@ -1,14 +1,24 @@
 /*******************************************************************
 この次の行に、課題作成に参加したメンバ全員の学籍番号を記入すること
 
+
+ s1180108 中野　慈
+ s1220170 大滝　寛人
+ s1230073 櫻井　俊輔
+ s1230150 影山　尚登
+
+
 *******************************************************************/
 
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include "lf-scanner.h"
 #include "token.h"
 #include "error.h"
 #include "parse.h"
+
+using namespace std;
 
 
 // static関数のプロトタイプ宣言
@@ -22,6 +32,17 @@ static void parseError(void);
 
 // トークンを保存するstatic変数
 static int token;
+
+/**
+ * IMPL	 ‒>	含意記号（ならば）
+ * AND	 &	論理積記号（かつ）
+ * OR	 |	論理和記号（または）
+ * NOT	 !	否定記号（でない）
+ * TRUE	 t	真（true）
+ * FALSE f	偽（false）
+ * '('	 (	開きカッコ
+ * ')'	 )	閉じカッコ
+ */
 
 
 // 構文解析系のトップレベル関数
@@ -87,6 +108,36 @@ bool parseNoImpl2(bool b)
 //   副作用: なし
 bool parseSimpleLF()
 {
+    bool b;
+
+    switch(token) {
+        case NOT:
+            // NOT 単純論理式
+            match(NOT);
+            // 次のtokenは '単純論理式'
+            parseSimpleLF();
+            break;
+        case '(':
+            // ( 論理式 )
+            match('(');
+            parseLF();
+            break;
+        case TRUE:
+            // TRUE
+            match(TRUE);
+            b = TRUE;
+            break;
+        case FALSE:
+            // FALSE
+            match(FALSE);
+            b = FALSE;
+            break;
+        default:
+            b = FALSE;
+            break;
+    }
+
+    return b;
 }
 
 // 読み込んだトークンが期待しているトークンと一致しているかどうか調べる
