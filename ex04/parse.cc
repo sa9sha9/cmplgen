@@ -115,12 +115,13 @@ bool parseSimpleLF()
             // NOT 単純論理式
             match(NOT);
             // 次のtokenは '単純論理式'
-            parseSimpleLF();
+            // 単純論理式の値にNOT演算をする
+            b = ! parseSimpleLF();
             break;
         case '(':
             // ( 論理式 )
             match('(');
-            parseLF();
+            b = parseLF();
             break;
         case TRUE:
             // TRUE
@@ -133,7 +134,7 @@ bool parseSimpleLF()
             b = FALSE;
             break;
         default:
-            b = FALSE;
+            parseError();
             break;
     }
 
