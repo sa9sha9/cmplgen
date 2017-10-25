@@ -209,12 +209,12 @@ bool parseSimpleLF()
         case TRUE:
             // TRUE
             match(TRUE);
-            bl = TRUE;
+            bl = true;
             break;
         case FALSE:
             // FALSE
             match(FALSE);
-            bl = FALSE;
+            bl = false;
             break;
         default:
             parseError();
