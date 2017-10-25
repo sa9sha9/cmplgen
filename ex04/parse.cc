@@ -118,6 +118,31 @@ bool parseLF2(bool b)
 //   副作用: なし
 bool parseNoImpl()
 {
+    bool bl;
+
+    // 最初はとりあえず単純論理式の展開をする ( first(含意なし論理式)はすべてfirst(単純論理式)が実体だし.. )
+    switch(token) {
+        case NOT:
+            bl = parseSimpleLF();
+            break;
+        case '(':
+            bl = parseSimpleLF();
+            break;
+        case TRUE:
+            bl = parseSimpleLF();
+            break;
+        case FALSE:
+            bl = parseSimpleLF();
+            break;
+        default:
+            parseError();
+            break;
+    }
+
+    // 単純論理式が展開できたら、後に続く含意なし論理式２を展開する.
+    bl = parseNoImpl2(bl); // switchの各case内でやってもいいけど、外に出したほうがいいね
+
+    return bl;
 }
 
 // 「含意無し論理式２」の構文解析を行い，その真理値を返す
@@ -126,7 +151,38 @@ bool parseNoImpl()
 //   副作用: なし
 bool parseNoImpl2(bool b)
 {
+    bool bl, putty; // puttyはサンドイッチの肉
+
+    // todo: C++の論理式の解釈仕様を考慮してやる必要がある？
+
+    switch(token) {
+        case AND:
+            // OR 単純論理式 含意無し論理式2
+            match(AND);
+            putty = parseSimpleLF();
+            // bがtrueかつ、parseNoImpl2で計算された真理値がtrueなら、blはtrue.
+            // (例えばparseNoImpl2が空後ならputtyの真理値そのままの値と&&することになる.)
+            bl = b && parseNoImpl2(putty);
+            break;
+        case OR:
+            // AND 単純論理式 含意無し論理式2
+            match(OR);
+            putty = parseSimpleLF();
+            // bがtrueかもしくは、parseNoImpl2で計算された真理値がtrueなら、blはtrue.
+            bl = b || parseNoImpl2(putty);
+            break;
+        case EOF:
+            // 空後
+            bl = b; // 一つ前の論理式の真理値そのまま
+            break;
+        default:
+            parseError();
+            break;
+    }
+
+    return bl;
 }
+
 /** ボーナス点を狙うチームは、parseLF()の定義からここまでをコメントアウトする **/
 
 // 「単純論理式」の構文解析を行い，その真理値を返す
