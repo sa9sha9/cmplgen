@@ -83,6 +83,33 @@ bool parseLF()
 //   副作用: なし
 bool parseLF2(bool b)
 {
+    bool bl;
+
+    switch(token) {
+        case IMPL:
+            // IMPL 論理式
+            /**
+             * A->Bについて、
+             * A  B A⇒B
+             * 真 真 真
+             * 真 偽 偽
+             * 偽 真 真
+             * 偽 偽 真
+             * ( !A || B : Aが成り立たない、またはBが成り立つ ) と言い換えることもできる.
+             */
+            match(IMPL);
+            bl = !b || parseLF(); // bがfalse、またはparseLFの結果がtrueの時、blがtrueになる.
+            break;
+        case EOF:
+            // 空語の場合は一つ前の論理式の真理値そのまま
+            bl = b;
+            break;
+        default:
+            parseError();
+            break;
+    }
+
+    return bl;
 }
 
 // 「含意無し論理式」の構文解析を行い，その真理値を返す
@@ -108,37 +135,37 @@ bool parseNoImpl2(bool b)
 //   副作用: なし
 bool parseSimpleLF()
 {
-    bool b;
+    bool bl;
 
     switch(token) {
         case NOT:
             // NOT 単純論理式
             match(NOT);
             // 次のtokenは '単純論理式'
-            // 単純論理式の値にNOT演算をする
-            b = ! parseSimpleLF();
+            bl = ! parseSimpleLF(); // 単純論理式の値にNOT演算をする
             break;
         case '(':
             // ( 論理式 )
             match('(');
-            b = parseLF();
+            bl = parseLF();
+            match(')');
             break;
         case TRUE:
             // TRUE
             match(TRUE);
-            b = TRUE;
+            bl = TRUE;
             break;
         case FALSE:
             // FALSE
             match(FALSE);
-            b = FALSE;
+            bl = FALSE;
             break;
         default:
             parseError();
             break;
     }
 
-    return b;
+    return bl;
 }
 
 // 読み込んだトークンが期待しているトークンと一致しているかどうか調べる
