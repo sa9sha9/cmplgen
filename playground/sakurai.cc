@@ -1,3 +1,6 @@
+using namespace std;
+
+#include <iostream>
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,6 +8,22 @@
 #include "error.h"
 
 
+int main(void) {
+    enum Hoge {
+        NOT,
+        TRUE,
+        FALSE,
+    };
+
+    if (Hoge.TRUE) {
+        cout << "in";
+    } else {
+        cout << "out";
+    }
+}
+
+
+/**
 
 static FILE *srcFilePointer;
 
@@ -32,3 +51,5 @@ void initializeScanner(char *filename)
 
     fclose(fp);
 }
+
+ */
