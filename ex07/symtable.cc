@@ -5,6 +5,11 @@ using namespace std;
 /*******************************************************************
 この次の行に、課題作成に参加したメンバ全員の学籍番号を記入すること
 
+ s1180108 中野　慈
+ s1220170 大滝　寛人
+ s1230073 櫻井　俊輔
+ s1230150 影山　尚登
+
 *******************************************************************/
 
 #include "symtable.h"
@@ -31,7 +36,8 @@ VarEntry *addGlobalVariable(string name, Type type)
 // 登録した変数エントリへのポインタを返す
 VarEntry *addArray(string name, Type type, int size)
 {
-
+  VarEntry *var = addVariable(name, GrobalVar, type, true, size, &globalSymTable);
+  return var;
 }
 
 // 局所変数のための変数エントリを生成し、局所的な記号表に登録する
