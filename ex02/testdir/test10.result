@@ -1,1 +1,2 @@
-./test.sh: line 19: 23847: Memory fault(coredump)
+1: INUM (97) を読む
+tmp.in:2:文字定数は１文字しか許されません

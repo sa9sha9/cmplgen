@@ -1,0 +1,173 @@
+Grammar
+
+    0 $accept: calc $end
+
+    1 calc: expr ';'
+
+    2 expr: expr '+' term
+    3     | term
+
+    4 term: term '*' factor
+    5     | factor
+
+    6 factor: NUM
+    7       | '(' expr ')'
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'(' (40) 7
+')' (41) 7
+'*' (42) 4
+'+' (43) 2
+';' (59) 1
+error (256)
+NUM (258) 6
+
+
+Nonterminals, with rules where they appear
+
+$accept (9)
+    on left: 0
+calc (10)
+    on left: 1, on right: 0
+expr (11)
+    on left: 2 3, on right: 1 2 7
+term (12)
+    on left: 4 5, on right: 2 3 4
+factor (13)
+    on left: 6 7, on right: 4 5
+
+
+State 0
+
+    0 $accept: . calc $end
+
+    NUM  shift, and go to state 1
+    '('  shift, and go to state 2
+
+    calc    go to state 3
+    expr    go to state 4
+    term    go to state 5
+    factor  go to state 6
+
+
+State 1
+
+    6 factor: NUM .
+
+    $default  reduce using rule 6 (factor)
+
+
+State 2
+
+    7 factor: '(' . expr ')'
+
+    NUM  shift, and go to state 1
+    '('  shift, and go to state 2
+
+    expr    go to state 7
+    term    go to state 5
+    factor  go to state 6
+
+
+State 3
+
+    0 $accept: calc . $end
+
+    $end  shift, and go to state 8
+
+
+State 4
+
+    1 calc: expr . ';'
+    2 expr: expr . '+' term
+
+    ';'  shift, and go to state 9
+    '+'  shift, and go to state 10
+
+
+State 5
+
+    3 expr: term .
+    4 term: term . '*' factor
+
+    '*'  shift, and go to state 11
+
+    $default  reduce using rule 3 (expr)
+
+
+State 6
+
+    5 term: factor .
+
+    $default  reduce using rule 5 (term)
+
+
+State 7
+
+    2 expr: expr . '+' term
+    7 factor: '(' expr . ')'
+
+    '+'  shift, and go to state 10
+    ')'  shift, and go to state 12
+
+
+State 8
+
+    0 $accept: calc $end .
+
+    $default  accept
+
+
+State 9
+
+    1 calc: expr ';' .
+
+    $default  reduce using rule 1 (calc)
+
+
+State 10
+
+    2 expr: expr '+' . term
+
+    NUM  shift, and go to state 1
+    '('  shift, and go to state 2
+
+    term    go to state 13
+    factor  go to state 6
+
+
+State 11
+
+    4 term: term '*' . factor
+
+    NUM  shift, and go to state 1
+    '('  shift, and go to state 2
+
+    factor  go to state 14
+
+
+State 12
+
+    7 factor: '(' expr ')' .
+
+    $default  reduce using rule 7 (factor)
+
+
+State 13
+
+    2 expr: expr '+' term .
+    4 term: term . '*' factor
+
+    '*'  shift, and go to state 11
+
+    $default  reduce using rule 2 (expr)
+
+
+State 14
+
+    4 term: term '*' factor .
+
+    $default  reduce using rule 4 (term)

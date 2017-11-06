@@ -1,1 +1,2 @@
-./test.sh: line 19: 23842: Memory fault(coredump)
+1: INUM (97) を読む
+tmp.in:2:予期しないファイルの終りを検出しました
