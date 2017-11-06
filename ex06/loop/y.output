@@ -1,0 +1,61 @@
+Grammar
+
+    0 $accept: line $end
+
+    1 line: %empty
+    2     | line NUM ';'
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+';' (59) 2
+error (256)
+NUM (258) 2
+
+
+Nonterminals, with rules where they appear
+
+$accept (5)
+    on left: 0
+line (6)
+    on left: 1 2, on right: 0 2
+
+
+State 0
+
+    0 $accept: . line $end
+
+    $default  reduce using rule 1 (line)
+
+    line  go to state 1
+
+
+State 1
+
+    0 $accept: line . $end
+    2 line: line . NUM ';'
+
+    $end  shift, and go to state 2
+    NUM   shift, and go to state 3
+
+
+State 2
+
+    0 $accept: line $end .
+
+    $default  accept
+
+
+State 3
+
+    2 line: line NUM . ';'
+
+    ';'  shift, and go to state 4
+
+
+State 4
+
+    2 line: line NUM ';' .
+
+    $default  reduce using rule 2 (line)

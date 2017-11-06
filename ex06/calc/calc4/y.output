@@ -1,0 +1,176 @@
+Grammar
+
+    0 $accept: calc $end
+
+    1 calc: expr ';'
+
+    2 expr: expr ADDOP expr
+    3     | expr MULOP expr
+    4     | ADDOP expr
+    5     | NUM
+    6     | '(' expr ')'
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'(' (40) 6
+')' (41) 6
+';' (59) 1
+error (256)
+NUM (258) 5
+ADDOP (259) 2 4
+MULOP (260) 3
+SIGNOP (261)
+
+
+Nonterminals, with rules where they appear
+
+$accept (10)
+    on left: 0
+calc (11)
+    on left: 1, on right: 0
+expr (12)
+    on left: 2 3 4 5 6, on right: 1 2 3 4 6
+
+
+State 0
+
+    0 $accept: . calc $end
+
+    NUM    shift, and go to state 1
+    ADDOP  shift, and go to state 2
+    '('    shift, and go to state 3
+
+    calc  go to state 4
+    expr  go to state 5
+
+
+State 1
+
+    5 expr: NUM .
+
+    $default  reduce using rule 5 (expr)
+
+
+State 2
+
+    4 expr: ADDOP . expr
+
+    NUM    shift, and go to state 1
+    ADDOP  shift, and go to state 2
+    '('    shift, and go to state 3
+
+    expr  go to state 6
+
+
+State 3
+
+    6 expr: '(' . expr ')'
+
+    NUM    shift, and go to state 1
+    ADDOP  shift, and go to state 2
+    '('    shift, and go to state 3
+
+    expr  go to state 7
+
+
+State 4
+
+    0 $accept: calc . $end
+
+    $end  shift, and go to state 8
+
+
+State 5
+
+    1 calc: expr . ';'
+    2 expr: expr . ADDOP expr
+    3     | expr . MULOP expr
+
+    ADDOP  shift, and go to state 9
+    MULOP  shift, and go to state 10
+    ';'    shift, and go to state 11
+
+
+State 6
+
+    2 expr: expr . ADDOP expr
+    3     | expr . MULOP expr
+    4     | ADDOP expr .
+
+    $default  reduce using rule 4 (expr)
+
+
+State 7
+
+    2 expr: expr . ADDOP expr
+    3     | expr . MULOP expr
+    6     | '(' expr . ')'
+
+    ADDOP  shift, and go to state 9
+    MULOP  shift, and go to state 10
+    ')'    shift, and go to state 12
+
+
+State 8
+
+    0 $accept: calc $end .
+
+    $default  accept
+
+
+State 9
+
+    2 expr: expr ADDOP . expr
+
+    NUM    shift, and go to state 1
+    ADDOP  shift, and go to state 2
+    '('    shift, and go to state 3
+
+    expr  go to state 13
+
+
+State 10
+
+    3 expr: expr MULOP . expr
+
+    NUM    shift, and go to state 1
+    ADDOP  shift, and go to state 2
+    '('    shift, and go to state 3
+
+    expr  go to state 14
+
+
+State 11
+
+    1 calc: expr ';' .
+
+    $default  reduce using rule 1 (calc)
+
+
+State 12
+
+    6 expr: '(' expr ')' .
+
+    $default  reduce using rule 6 (expr)
+
+
+State 13
+
+    2 expr: expr . ADDOP expr
+    2     | expr ADDOP expr .
+    3     | expr . MULOP expr
+
+    MULOP  shift, and go to state 10
+
+    $default  reduce using rule 2 (expr)
+
+
+State 14
+
+    2 expr: expr . ADDOP expr
+    3     | expr . MULOP expr
+    3     | expr MULOP expr .
+
+    $default  reduce using rule 3 (expr)

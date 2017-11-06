@@ -1,1 +1,2 @@
-./test.sh: line 19: 23867: Memory fault(coredump)
+1: ;を読む
+tmp.in:2:^(16進コード: 5e)は不正な文字です
