@@ -42,7 +42,7 @@ typedef map<string, SymbolEntry *> SymbolTable;
 class VarEntry : public SymbolEntry {
   VarClass _vclass;	// 変数の種別
   int _location;	// 大域変数のとき: 変数の静的データ領域内の番地
-			// それ以外のとき: 変数のフレーム内相対番地
+			        // それ以外のとき: 変数のフレーム内相対番地
   bool _array;		// 配列なら true、単純変数なら false
   int _size;		// 配列のサイズ
  public:
