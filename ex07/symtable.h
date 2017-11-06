@@ -49,15 +49,16 @@ class VarEntry : public SymbolEntry {
   // コンストラクタ
   VarEntry(VarClass vc, string name, Type type, bool array, int size)
   // これ以降のコンストラクタの定義を書き換えること
-    : SymbolEntry(SymVar,name), _vclass(vc) { }
+    : SymbolEntry(SymVar,name,type), _vclass(vc), _array(array),
+            _size(size) { }
   // 変数の種別を調べるための述語
   bool isGlobalVariable() { return _vclass == GlobalVar; }
   bool isLocalVariable() { return _vclass == LocalVar; }
   bool isParameter() { return _vclass == Param; }
   // 配列かどうかを調べるためのメンバ関数
-  bool isArray() { }
+  bool isArray() { return _array; }
   // 配列のサイズを得るためのメンバ関数
-  int getArraySize() { }
+  int getArraySize() { return _size; }
 };
 
 
