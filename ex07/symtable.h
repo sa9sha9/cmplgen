@@ -24,14 +24,14 @@ class SymbolEntry  {
   // コンストラクタ
   SymbolEntry(SymClass c, string name, Type type)
   // これ以降のコンストラクタの定義を書き換えること
-    : _class(c), _name(name)  { }
+    : _class(c), _name(name), _type(type)  { }
   // 記号表エントリの種別を調べるための述語
   bool isVariable() { return _class == SymVar; }
   bool isProcedure() { return _class == SymProc; }
   // 識別子名にアクセスするためのメンバ関数
   string getName() { return _name; }
   // 識別子の型にアクセスするためのメンバ関数
-  Type getType() { }
+  Type getType() { return _type; }
 };
 
 // 記号表の型名の定義
@@ -42,7 +42,7 @@ typedef map<string, SymbolEntry *> SymbolTable;
 class VarEntry : public SymbolEntry {
   VarClass _vclass;	// 変数の種別
   int _location;	// 大域変数のとき: 変数の静的データ領域内の番地
-			// それ以外のとき: 変数のフレーム内相対番地
+			        // それ以外のとき: 変数のフレーム内相対番地
   bool _array;		// 配列なら true、単純変数なら false
   int _size;		// 配列のサイズ
  public:

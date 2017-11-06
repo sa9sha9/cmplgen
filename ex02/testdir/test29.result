@@ -1,1 +1,5 @@
-./test.sh: line 19: 23976: Memory fault(coredump)
+1: ID (abc) を読む
+     IDを読んだ
+OK
+2: ID (a) を読む
+tmp.in:1:$(16進コード: 24)は不正な文字です

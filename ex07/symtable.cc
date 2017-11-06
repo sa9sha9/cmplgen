@@ -5,6 +5,11 @@ using namespace std;
 /*******************************************************************
 この次の行に、課題作成に参加したメンバ全員の学籍番号を記入すること
 
+ s1180108 中野　慈
+ s1220170 大滝　寛人
+ s1230073 櫻井　俊輔
+ s1230150 影山　尚登
+
 *******************************************************************/
 
 #include "symtable.h"
@@ -24,14 +29,15 @@ static SymbolTable localSymTable;	// 局所的な記号表
 VarEntry *addGlobalVariable(string name, Type type)
 {
   // この関数の本体を変更すること
-  return addVariable(name,GlobalVar,&globalSymTable);
+  return addVariable(name, GlobalVar, type, false, 0, &globalSymTable);
 }
 
 // 配列のための変数エントリを生成し、大域的な記号表に登録する
 // 登録した変数エントリへのポインタを返す
 VarEntry *addArray(string name, Type type, int size)
 {
-
+  VarEntry *var = addVariable(name, GrobalVar, type, true, size, &globalSymTable);
+  return var;
 }
 
 // 局所変数のための変数エントリを生成し、局所的な記号表に登録する
@@ -39,7 +45,7 @@ VarEntry *addArray(string name, Type type, int size)
 VarEntry *addLocalVariable(string name, Type type)
 {
   // この関数の本体を変更すること
-  VarEntry *var = addVariable(name,LocalVar,&localSymTable);
+  VarEntry *var = addVariable(name, LocalVar, type, false, 0, &localSymTable);
   return var;
 }
 
@@ -48,7 +54,7 @@ VarEntry *addLocalVariable(string name, Type type)
 VarEntry *addParameter(string name, Type type)
 {
   // この関数の本体を変更すること
-  VarEntry *var = addVariable(name,Param,&localSymTable);
+  VarEntry *var = addVariable(name,Param, type, false, 0, &localSymTable);
   return var;
 }
 
@@ -70,7 +76,7 @@ static VarEntry *addVariable(string name, VarClass vc, Type type,
       compileError(EAlreadyAsProc,name.c_str());
   }
   // なければ識別子名name、種別vclassの変数を生成し、与えられた記号表に登録
-  VarEntry *var = new VarEntry(vc,name);
+  VarEntry *var = new VarEntry( vc, name, type, array, size );
   table->insert(make_pair(name, var));
   return var;
 }

@@ -195,7 +195,11 @@ bool parseNoImpl2(bool b) {
             // bがtrueかもしくは、parseNoImpl2で計算された真理値がtrueなら、blはtrue.
             bl = b || parseNoImpl2(putty);
             break;
-        case EOF:
+        case ')':
+	    match(')');
+	    bl = b;
+	    break;
+	case EOF:
             // 空後
             bl = b; // 一つ前の論理式の真理値そのまま
             break;
@@ -227,7 +231,7 @@ bool parseSimpleLF() {
             // ( 論理式 )
             match('(');
             bl = parseLF();
-            match(')');
+	    //            match(')');
             break;
         case TRUE:
             // TRUE

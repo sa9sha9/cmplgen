@@ -1,1 +1,2 @@
-./test.sh: line 19: 23939: Memory fault(coredump)
+1: ID (_ab) を読む
+tmp.in:2:_(16進コード: 5f)は不正な文字です
