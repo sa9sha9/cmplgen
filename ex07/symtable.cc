@@ -36,7 +36,7 @@ VarEntry *addGlobalVariable(string name, Type type)
 // 登録した変数エントリへのポインタを返す
 VarEntry *addArray(string name, Type type, int size)
 {
-  VarEntry *var = addVariable(name, GrobalVar, type, true, size, &globalSymTable);
+  VarEntry *var = addVariable(name, GlobalVar, type, true, size, &globalSymTable);
   return var;
 }
 
