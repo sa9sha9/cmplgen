@@ -24,7 +24,7 @@ static SymbolTable localSymTable;	// 局所的な記号表
 VarEntry *addGlobalVariable(string name, Type type)
 {
   // この関数の本体を変更すること
-  return addVariable(name,GlobalVar,&globalSymTable);
+  return addVariable(name, GlobalVar, type, false, 0, &globalSymTable);
 }
 
 // 配列のための変数エントリを生成し、大域的な記号表に登録する
@@ -39,7 +39,7 @@ VarEntry *addArray(string name, Type type, int size)
 VarEntry *addLocalVariable(string name, Type type)
 {
   // この関数の本体を変更すること
-  VarEntry *var = addVariable(name,LocalVar,&localSymTable);
+  VarEntry *var = addVariable(name, LocalVar, type, false, 0, &localSymTable);
   return var;
 }
 
@@ -48,7 +48,7 @@ VarEntry *addLocalVariable(string name, Type type)
 VarEntry *addParameter(string name, Type type)
 {
   // この関数の本体を変更すること
-  VarEntry *var = addVariable(name,Param,&localSymTable);
+  VarEntry *var = addVariable(name,Param, type, false, 0, &localSymTable);
   return var;
 }
 
