@@ -1,5 +1,3 @@
-using namespace std;
-
 #include <iostream>
 #include <string>
 #include <stdio.h>
@@ -7,19 +5,20 @@ using namespace std;
 #include <string.h>
 #include "error.h"
 
+using namespace std;
+
 
 int main(void) {
-    enum Hoge {
-        NOT,
-        TRUE,
-        FALSE,
-    };
+    double n = 130000000, p = 1;
+    float f = 1/(16^2);
+    cout << f << endl;
 
-    if (Hoge.TRUE) {
-        cout << "in";
-    } else {
-        cout << "out";
+         return;
+    for (int i = 1; i<n; i++) {
+        p *= (i/16^24);
     }
+
+    cout << p << endl;
 }
 
 

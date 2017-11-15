@@ -49,8 +49,7 @@ class VarEntry : public SymbolEntry {
   // コンストラクタ
   VarEntry(VarClass vc, string name, Type type, bool array, int size)
   // これ以降のコンストラクタの定義を書き換えること
-    : SymbolEntry(SymVar,name,type), _vclass(vc), _array(array),
-            _size(size) { }
+    : SymbolEntry(SymVar,name,type), _vclass(vc), _array(array), _size(size) { }
   // 変数の種別を調べるための述語
   bool isGlobalVariable() { return _vclass == GlobalVar; }
   bool isLocalVariable() { return _vclass == LocalVar; }

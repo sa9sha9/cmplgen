@@ -1,6 +1,5 @@
 using namespace std;
 
-#include <iostream>
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +52,7 @@ main()
     case ID:
       if (*yylval.symbol != ids[id])  {
         fprintf(stderr,"scanner.ccのエラー: 字句が%sではなく%sだった！\n",
-                ids[id],yylval.symbol->c_str());
+                ids[id],yylval.symbol);
         exit(2);
       }
       id++;
