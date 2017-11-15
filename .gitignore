@@ -1,5 +1,6 @@
 ## for Project
-/testdir*/
+#/testdir*/
+*/testdir/
 
 # Prerequisites
 *.d
