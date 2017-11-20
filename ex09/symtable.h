@@ -59,6 +59,11 @@ public:
     bool isArray() { return _array; }
     // 配列のサイズを得るためのメンバ関数
     int getArraySize() { return _size; }
+    // 変数の番地（配列を含む大域変数の場合は静的データ領域中の番地、
+    // 局所変数と仮引数の場合はフレームポインタからの相対位置） を格納する。
+    void setLocation(int loc) { _location = loc; }
+    // 変数の番地を返す。
+    int getLocation(void) { return _location; }
 };
 
 // 仮引数の型(型と引数名のペア)
@@ -76,7 +81,8 @@ class ProcEntry : public SymbolEntry {
  public:
   // コンストラクタ
   ProcEntry(Type type, string name, ParamList *params)
-    : SymbolEntry(SymProc,name,type) { }
+    : SymbolEntry(SymProc,name,type) {
+  }
   // 引数個数へのアクセス
   int getParamNumber() { }
   // 引数の型リストのポインタへのアクセス
