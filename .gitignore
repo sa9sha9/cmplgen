@@ -1,6 +1,6 @@
 ## for Project
-#/testdir*/
 */testdir/
+playground/**/*
 
 # Prerequisites
 *.d
