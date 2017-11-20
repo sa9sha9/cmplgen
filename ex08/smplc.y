@@ -132,8 +132,8 @@ rconst
 
 // 型 → INT | REAL
 type
-  : INT  { }
-  | REAL { }
+  : INT  { $$ = TInt; }  // 整数型を表すType型の定数TIntをtypeの合成属性に代入
+  | REAL { $$ = TReal; } // 実数型を表すType型の定数TRealをtypeの合成属性に代入
   ;
 
 // 文リスト → ε | 文リスト 文
@@ -149,19 +149,20 @@ stmtList
 // 置き換えられる。
 stmt
   : vname '='
-      { }
+
+    { if( $1->isArray() ) compileError( EDeclaredAsArray, $1->getName().c_str() ); } // vnameの属性varの値である変数エントリが配列の時compileErrorを呼び出す
     expr ';'
-      { }
+    { $$ = makeAssignTree($1, $4, NULL); } // makeAssignTreeを呼び、代入文の構文木を生成して、そのポインタをstmtの合成属性に代入
   | vname '['
-      { }
+    { if( !( $1->isArray() ) ) compileError( EDeclaredAsSimpleVar, $1->getName().c_str() ); } // vnameの属性varの値である変数エントリが、compileErrorを呼び出す
     expr ']'
-      { }
+    { if( ( $4->getType() ) != TInt ) compileError( EIndexTypeMismatch, $1->getName().c_str() ); } // exprの属性expressionの値が整数型以外の時、エラー処理を実行
     '=' expr ';'
-      { }
+    {$$ = makeAssignTree($1,$8,$4); } // 関数makeAssignTree()を呼び代入文の構文木を生成し、それへのポインタをstmtの合成属性に代入.
   | ifPart elsePart { $$ = new IfTree($1,$2); }
   | WHILE '(' cond ')' '{' stmtList '}' { $$ = new WhileTree($3,$6); }
   | REPEAT '(' expr ')'
-      { }
+    {if(($3->getType())!=TInt) compileError(ERepeatTypeMismatch); } // exprの属性expressionの値が、整数型以外の時、エラー処理を実行
     '{' stmtList '}' { $$ = new RepeatTree($3,$7); }
   ;
 
@@ -191,18 +192,20 @@ expr
   | ADDOP expr %prec SIGNOP { $$ = new UniExprTree($1,$2); }
   | '(' expr ')' { $$ = $2; }
   | vname
-      { }
+   { if( $1->isArray() ) compileError( EDeclaredAsArray, $1->getName().c_str() ); // vnameの属性varの値である変数エントリが配列の時compileErrorを呼び出す
+    else $$ = new SmplVarNode( $1->getName(), $1->getLocation(), $1->getType()); } // 変数エントリが変数だった時、単純変数の構文木を生成し、そのポインタをexprの合成属性に代入
   | vname '['
-      { }
+    { if( !( $1->isArray() ) ) compileError( EDeclaredAsSimpleVar, $1->getName().c_str() ); } // vnameの属性varの値である変数エントリが配列の時compileErrorを呼び出す
     expr ']'
-      { }
-  | INUM { }
-  | RNUM { }
+    { if( ( $4->getType() ) != TInt ) compileError( EIndexTypeMismatch, $1->getName().c_str() ); // exprの属性expressionの値が、整数型以外の時エラー処理を実行
+     else $$ = new ArrayElemTree( $1->getName(), $1->getLocation(), $1->getType(), $4, $1->getArraySize() ); } // 変数エントリが配列でタイプが整数型だった時、配列要素の構文木を生成し、ポインタをexprの合成属性に代入
+  | INUM { $$ = new INumNode($1); } // 整数の構文木を生成し、そのポインタをexprの合成属性に代入
+  | RNUM { $$ = new RNumNode($1); } // 実数の構文木を生成し、そのポインタをexprの合成属性に代入
   ;
 
 // stmt と expr の右辺中の ID を置き換えたもの
 vname
-  : ID { }
+  : ID { $$ = findVariable(*$1); } // IDの属性値である識別子名を持つ変数を記号表から探し、見つかればそのポインタをvnameの合成属性に代入する
   ;
 
 // 条件 → 条件 LOGOP 条件 | ULOGOP 条件 | 式 RELOP 式 | '(' 条件 ')'
@@ -264,20 +267,75 @@ static void allocateArray(VarEntry *var)
   }
 }
 
+// 構文木を生成
 static AssignTree *makeAssignTree(VarEntry *var,
                                   ExprTree *expr, ExprTree *index)
 {
+  // indexがNULLの時、単純変数の構文木を生成
+  if(index == NULL){
+    // 代入文の左辺の単純変数の構文木svarの生成
+    SmplVarNode *svar = new SmplVarNode(var->getName(), var->getLocation(), var->getType());
 
+    // 代入文の左辺の構文木varが整数型で、右辺の構文木exprが実数型のとき
+    if(var->getType()==TInt && expr->getType()==TReal){
+      UniExprTree *iexp = new UniExprTree(Creal2int, expr, TInt); // exprを引数とし、単項演算子real2intを持つ整数型の構文木iexpを生成
+      return new AssignTree(svar, iexp); // svarとiexpを要素とする代入文の構文木を生成
+    }
+      // 代入文の左辺の構文木varが実数型、右辺の構文木exprが整数型のとき
+    else if(var->getType()==TReal && expr->getType()==TInt){
+      UniExprTree *rexp = new UniExprTree(Cint2real, expr, TReal); // exprを引数とする単項演算子int2realを持つ実数型の構文木rexpを生成
+      return new AssignTree(svar, rexp); // svarとrexpを要素とする代入文の構文木を生成
+    }
+    else return new AssignTree(svar,expr); // 両辺とも同じ型の時、svarとexprを要素とする代入文の構文木を生成
+  }
+  else{ // indexがNULL以外の時、配列要素の構文木を生成
+    // 代入文の左辺の配列要素の構文木avarを生成
+    ArrayElemTree *avar = new ArrayElemTree(var->getName(), var->getLocation(), var->getType(), index, var->getArraySize());
+
+    // 代入文の左辺の構文木varが整数型、右辺の構文木exprが実数型のとき
+    if(var->getType()==TInt && expr->getType()==TReal){
+      UniExprTree *iexp = new UniExprTree(Creal2int, expr, TInt); // exprを引数とする単項演算子real2intを持つ整数型の構文木iexpを生成
+      return new AssignTree(avar,iexp); // avarとiexpを要素とする代入文の構文木を生成
+    }
+    else if(var->getType()==TReal && expr->getType()==TInt){ // 代入文の左辺の構文木varが実数型、右辺の構文木exprが整数型のとき
+      UniExprTree *rexp = new UniExprTree(Cint2real, expr, TReal); // exprを引数とする単項演算子int2realを持つ実数型の構文木rexpを生成
+      return new AssignTree(avar, rexp); // avarとrexpを要素とする代入文の構文木を生成
+    }
+    else return new AssignTree(avar, expr); //両辺とも同じ型の時、avarとexprを要素とする代入文の構文木を生成
+  }
 }
 
+
+// 式の構文木を生成
 static ExprTree *makeBinExprTree(CConst op, ExprTree *lexp, ExprTree *rexp)
 {
+  if(lexp->getType()==TInt && rexp->getType()==TReal){ // 左辺の式の構文木lexpが整数型、右辺の式の構文木rexpが実数型のとき
+    UniExprTree *cvexp = new UniExprTree(Cint2real,lexp,TReal); // lexpを引数とする単項演算子int2realを持つ実数型の構文木cvexpを生成
+    return new BinExprTree(op,cvexp,rexp); // opとcvexpとrexpを要素とする二項演算子をもつ式の構文木を生成
+  }
 
+  else if(lexp->getType()==TReal && rexp->getType()==TInt){// 左辺の式の構文木lexpが実数型で、右辺の式の構文木rexpが整数型のとき
+    UniExprTree *cvexp = new UniExprTree(Cint2real,rexp,TReal);// rexpを引数とする単項演算子int2realを持つ実数型の構文木cvexpを生成
+    return new BinExprTree(op,lexp,cvexp);// opとlexpとcvexpを要素とする二項演算子をもつ式の構文木を生成
+  }
+
+  else return new BinExprTree(op,lexp,rexp);// 両辺とも同じ型の時、opとlexpとrexpを要素とする二項演算子をもつ式の構文木を生成
 }
 
+// 条件の構文木を生成
 static RelationTree *makeRelationTree(CConst op, ExprTree *e1, ExprTree *e2)
 {
+  if(e1->getType()==TInt && e2->getType()==TReal){// 左辺の式の構文木e1が整数型で、右辺の式の構文木e2が実数型のとき
+    UniExprTree *cvexp = new UniExprTree(Cint2real,e1,TReal);// e1を引数とする単項演算子int2realを持つ実数型の構文木cvexpを生成
+    return new RelationTree(op,cvexp,e2);// opとcvexpとe2を要素とする関係演算子をもつ式の構文木を生成
+  }
 
+  else if(e1->getType()==TReal && e2->getType()==TInt){// 左辺の式の構文木e1が実数型、右辺の式の構文木e2が整数型のとき
+    UniExprTree *cvexp = new UniExprTree(Cint2real,e2,TReal);// e2を引数とする、 単項演算子int2realを持つ実数型の構文木cvexpを生成
+    return new RelationTree(op,e1,cvexp);// opとe1とcvexpを要素とする関係演算子をもつ式の構文木を生成
+  }
+
+  else return new RelationTree(op,e1,e2);// 両辺とも同じ型の時、opとe1とe2を要素とする関係演算子をもつ式の構文木を生成
 }
 
 void usage(char *cmd)
