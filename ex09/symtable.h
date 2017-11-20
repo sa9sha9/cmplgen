@@ -81,12 +81,14 @@ class ProcEntry : public SymbolEntry {
  public:
   // コンストラクタ
   ProcEntry(Type type, string name, ParamList *params)
-    : SymbolEntry(SymProc,name,type) {
+    : SymbolEntry(SymProc,name,type), _defined(false), _code(new Code()), _sysProc(NULL) {
+      // paramsが空でなければ仮引数へのポインタ
+      _params = params.size() > 0 ? params : NULL;
   }
   // 引数個数へのアクセス
-  int getParamNumber() { }
+  int getParamNumber() { return params.size(); }
   // 引数の型リストのポインタへのアクセス
-  ParamList *getParamList() { }
+  ParamList *getParamList() { return _params; }
   // 本体のコードのポインタへのアクセス
   Code *getCode() { return _code; }
   // 定義済フラグへのアクセス
