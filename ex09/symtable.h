@@ -83,10 +83,10 @@ class ProcEntry : public SymbolEntry {
   ProcEntry(Type type, string name, ParamList *params)
     : SymbolEntry(SymProc,name,type), _defined(false), _code(new Code()), _sysProc(NULL) {
       // paramsが空でなければ仮引数へのポインタ
-      _params = params->size() > 0 ? params : NULL;
+      _params = params != NULL ? params : NULL;
   }
   // 引数個数へのアクセス
-  int getParamNumber() { return _params->size(); }
+  int getParamNumber() { return _params != NULL ? _params->size() : 0; }
   // 引数の型リストのポインタへのアクセス
   ParamList *getParamList() { return _params; }
   // 本体のコードのポインタへのアクセス

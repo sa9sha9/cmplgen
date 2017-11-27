@@ -90,6 +90,8 @@ VarEntry *addLocalVariable(string name, Type type)
 {
   // この関数の本体を変更すること
   VarEntry *var = addVariable(name, LocalVar, type, false, 0, &localSymTable);
+  var->setLocation(localVarLocation++);
+  
   return var;
 }
 
@@ -99,6 +101,8 @@ VarEntry *addParameter(string name, Type type)
 {
   // この関数の本体を変更すること
   VarEntry *var = addVariable(name,Param, type, false, 0, &localSymTable);
+  var->setLocation(paramLocation++);
+  
   return var;
 }
 
@@ -146,8 +150,20 @@ ProcEntry *defineProcedure(string name, Type type)
 
   // 同じ名前の識別子が与えられた記号表に存在するかチェック
   ProcEntry *proc = findProcedure(name);
-  proc->define();
 
+  if(proc->isDefined())
+    compileError(EProcDefDuplicated,name.c_str());
+
+  if(type != proc->getType())
+    compileError(EProcTypeMismatch,name.c_str());
+
+  localVarLocation = 1;
+  paramLocation = -(proc->getParamNumber());
+  
+  localSymTable.clear();
+  
+  proc->define();
+  
   return proc;
 }
 
@@ -212,17 +228,22 @@ static SymbolEntry *find(string name, SymbolTable *table)
 // 一致しなければエラー。一致すれば、何もせずにリターン。
 void checkParamList(ParamList *params, ProcEntry *proc)
 {
-  if(proc->getParamNumber() != params->size())
-    compileError(EParamNumMismatch,(proc->getName()).c_str(),params->size(),proc->getParamNumber());
+  int paramsSize = params != NULL ? params->size() : 0;
+  
+  if(proc->getParamNumber() != paramsSize)
+    compileError(EParamNumMismatch,(proc->getName()).c_str(),paramsSize,proc->getParamNumber());
 
-  ParamList *procParams = proc->getParamList();
-  ParamList::iterator it1 = procParams->begin();
-  ParamList::iterator it2 = params->begin();
-  int cnt = 0;
-  for(;it1 != procParams->end();it1++, it2++){
-    cnt++;
-    if(it1->first != it2->first)
-      compileError(EParamTypeMismatch,(proc->getName()).c_str(),cnt);
+  //引数が0個の場合は型エラー無し
+  if(proc->getParamNumber()){
+    ParamList *procParams = proc->getParamList();
+    ParamList::iterator it1 = procParams->begin();
+    ParamList::iterator it2 = params->begin();
+    for(int cnt = 0;it1 != procParams->end();it1++, it2++){
+      cnt++;
+      if(it1->first != it2->first)
+	compileError(EParamTypeMismatch,(proc->getName()).c_str(),cnt);
+    }
   }
+  
   return;
 }

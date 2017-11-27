@@ -213,7 +213,7 @@ static SymbolEntry *find(string name, SymbolTable *table)
 void checkParamList(ParamList *params, ProcEntry *proc)
 {
   if(proc->getParamNumber() != params->size())
-    compileError(EParamNumMismatch,proc->getName(),params->size(),proc->getParamNumber());
+    compileError(EParamNumMismatch,(proc->getName()).c_str(),params->size(),proc->getParamNumber());
 
   ParamList *procParams = proc->getParamList();
   ParamList::iterator it1 = procParams->begin();
@@ -222,7 +222,7 @@ void checkParamList(ParamList *params, ProcEntry *proc)
   for(;it1 != procParams->end();it1++, it2++){
     cnt++;
     if(it1->first != it2->first)
-      compileError(EParamTypeMismatch,proc->getName(),cnt);
+      compileError(EParamTypeMismatch,(proc->getName()).c_str(),cnt);
   }
   return;
 }
